@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2020 Max Goren 
+Copyright (c) 2020 Max Goren
 maxgoren@icloud.com
 http://www.maxcodes.info
 
@@ -62,7 +62,7 @@ void ent::move(World* Map, int dx, int dy)
 
 void ent::render()
 {
- terminal_layer(2);
+ terminal_layer(4);
  terminal_color("green");
  terminal_print(pos.x, pos.y, ch);
 }

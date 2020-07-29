@@ -42,7 +42,7 @@ THE SOFTWARE.
 int stepstaken = 0;
 bool showpath = false;
 std::vector<Point> path;
-
+void eucdist(Point, Point);
 void drawAll(World* map, ent* me, ent* notMe)
 {
  int x, y;
@@ -59,19 +59,24 @@ void drawAll(World* map, ent* me, ent* notMe)
    terminal_print(x, y, " ");
   }
   if (showpath == true)
-  {
+  {  //this shows the path BFS came up with
     if (map->layout[x][y].s == '*')
     {
       terminal_layer(2);
       terminal_color("orange");
       terminal_print(x,y,"*");
     }
-  }
+    }
  }
 }
+  //this is our target point.
   terminal_print(51,7,"$");
   me->render();
   notMe->render();
+  if (showpath == true)
+  {
+    eucdist(Point({7,7,'a'}), Point({51,7,'b'}));
+  }
 }
 
 void moveNotMe(ent* notMe, Point target)
@@ -82,13 +87,34 @@ void moveNotMe(ent* notMe, Point target)
   notMe->pos = *it;
   stepstaken++;
 }
+void eucdist(Point a, Point b)
+{
+  int x,y, dx,dy;
+  dx = a.x - b.x;
+  dy = a.y - b.y;
+  float dist = sqrtf(dx*dx+dy*dy);
+  std::cout<<a.x<<"/"<<a.y<<" "<<b.x<<"/"<<b.y<<"\n";
+  for (x = a.x; x <= b.x; x++)
+  {
+    for (y = a.y; y <= b.y; y++)
+    {
+      std::cout<<x<<"/"<<y<<"\n";
+      terminal_layer(3);
+      terminal_color("magenta");
+      terminal_print(x,y,"o");
+    }
+  }
+  terminal_printf(45,4, "Euclidean Distance: %f", dist);
+  terminal_color("orange");
+  terminal_printf(44,5, "Manhattan Distance: %d", path.size());
+}
 
 int main()
 {
  int k;
  bool turn=true;
  terminal_open();
- terminal_set("window: title='dj', size=85x42;");
+ terminal_set("window: title='dj', size=80x28;");
  World* Map;
  ent* me;
  ent* notMe;
