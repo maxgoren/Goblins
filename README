@@ -22,12 +22,63 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+How to use:
+----------------
+g++ -std=c++17 libBearLibTerminal.dylib algodemo_main.cpp -o algodemo
+g++ -std=c++17 libBearLibTerminal.dylib influencemap_demo.cpp -o influencemap
 
-g++ -std=c++17 libBearLibTerminal.dylib bfirst_demo.cpp -o bfdemo
-./bfdemo
 
-All files except for libBearLibTerminal.dylib and BearLibTerminal.h were created by:
 
+Files:
+---------------
+algodemo_main.cpp - driver program for demonstrating the different algorithms as implemented in a roguelike
+basic_ent.h - used by the driver program as very basic roguelike entity class
+basic_world.h - contains a rectangle class, and a world class for building basic roguelike map, 
+              - more importantly, it contains the Point struct used by the various algorithms demonstrated.
+bfirst.h - breadth first search
+dijk.h - Dijkstras Algorithm & A* algorithm
+bfMapper.h - creates influence maps(dijkstra maps)
+colors.h - the colors and color fading function used in the demos
+influencemap_demo.cpp - driver program demonstrating the implementation of influence mapping
+list.h - a linked list container i made, can be substituted with stl::list
+queue.h - a queue container i made, can be substituted with stl::queue
+
+
+BearLibTermina.h &
+libBearLibTerminal.dylib  - The Bear Lib Terminal library, info below.
+
+Additional notes
+------------------
+These were made to increas my knowledge on how pathfinding algorithms are used in the creation of roguelike games,
+and to better understand autonomous pathfinding in general, it is not meant to be, or implied to be production
+quality code.
+
+list.h & queue.h were created for a better understanding of data structures as they relate to algorithms, taken from
+examples in Robert Sedgewick's book Algorithims in C++ , which i highly recommend.
+Despite, this, their performance compared to the options available from the Standard Template Library are lackluster at best,
+as shown by benchmarks from the breadth first search implemented with them vs the STL versions:
+
+[maxs-MacBook-Pro:bmark]% ./mybenchmark 
+2020-08-08T22:51:48-04:00
+Running ./mybenchmark
+Run on (4 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x2)
+  L1 Instruction 32 KiB (x2)
+  L2 Unified 256 KiB (x2)
+  L3 Unified 4096 KiB (x1)
+Load Average: 1.61, 1.83, 1.84
+***WARNING*** Library was built as DEBUG. Timings may be affected.
+-----------------------------------------------------
+Benchmark           Time             CPU   Iterations
+-----------------------------------------------------
+BM_withSTL      65381 ns        65336 ns        10047
+BM_MaxCode    1269668 ns      1267983 ns          574
+
+Tests conducted using google-benchmark library:
+https://github.com/google/benchmark
+
+All code except for libBearLibTerminal.dylib and BearLibTerminal.h were created by:
 Max Goren - maxgoren@icloud.com https://www.maxcodes.info
 
 more information about BearLibTerminal, its usage, and creator can be found at:
