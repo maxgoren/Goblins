@@ -27,6 +27,12 @@ How to use:
 g++ -std=c++17 libBearLibTerminal.dylib algodemo_main.cpp -o algodemo
 g++ -std=c++17 libBearLibTerminal.dylib influencemap_demo.cpp -o influencemap
 
+When running '@' can be moved using the arrow keys in both programs.
+In algodemo:
+Pressing '1' will show a path from '@' to '$' as produced by breadth first search algorithm.
+Pressing '2' will show a path from '@' to '$' as produced by Dijkstra's Algorithm.
+Pressing '3' will show a path from '@' to '$' as produced by A* Algorithm.
+
 
 
 Files:
