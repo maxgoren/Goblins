@@ -22,24 +22,110 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-namespace std {
-template <> struct hash<Point> {
-  typedef Point argument_type;
-  typedef std::size_t result_type;
-  std::size_t operator()(const Point Pt) const noexcept {
-    return std::hash<int>()(Pt.x ^ (Pt.y << 4));
+struct hashkeyBF {
+  std::size_t operator()(const Point pt) const {
+      std::size_t x = std::hash<int>()(pt.x);
+      std::size_t y = std::hash<int>()(pt.y >> 4);
+    return x^y;
   }
 };
-}
+
 class bFirst {
   std::array<Point,4> cdir;
   std::queue<Point> que;
-  std::unordered_map<Point, Point> camefrom;
+  std::unordered_map<Point, Point, hashkeyBF> camefrom;
 public:
   World* map;
-  int addNeighbors(Point current, Point target);
+  void addNeighbors(Point current);
   void bFS(Point origin, Point target);
   bool inBounds(Point p);
   std::vector<Point> getPath(Point, Point);
+  void reset();
   bFirst(World* map);
 };
+
+bFirst::bFirst(World* map)
+{
+   this->map = map;
+   Point N({0,-1,'^'});
+   Point S({0,1,'v'});
+   Point E({1,0,'>'});
+   Point W({-1,0,'<'});
+   cdir[0]=E; cdir[1]=N; cdir[2]=W; cdir[3]=S;
+}
+
+bool bFirst::inBounds(Point p)
+{
+     return 0 <= p.x && p.x < map->mapW && 0 <= p.y && p.y < map->mapH;
+}
+
+void bFirst::addNeighbors(Point current)
+{
+  bool beenchecked = false;
+  for (auto dir : cdir)
+  {
+   Point next;
+   next = new Point({current.x + dir.x, current.y + dir.y, dir.s});
+   if (inBounds(next) && map->layout[next.x][next.y].blocks == false)
+   {
+     for (auto all : camefrom)
+     {
+       if (all.first.x == next.x && all.first.y == next.y)
+         beenchecked = true;
+      }
+      if (beenchecked == false) {
+         que.push(next);
+       camefrom[next] = current;
+    }
+      beenchecked = false;
+   }
+  }
+}
+
+void bFirst::bFS(Point origin, Point target)
+{
+   Point start;
+   Point current;
+   Point previous;
+   start = origin;
+   que.push(start);
+   camefrom[start] = start;
+   while (!que.empty())
+   {
+      previous = current;
+      current = que.front();
+      que.pop();
+      if (current == previous)
+      {
+         break;
+      }
+      if (current == target)
+          break;
+      addNeighbors(current);
+   }
+}
+
+std::vector<Point> bFirst::getPath(Point start, Point target)
+{
+   std::vector<Point> path;
+   reset();
+   bFS(start, target);
+   Point current = target;
+   while (current != start) {
+      path.push_back(current);
+      current = camefrom[current];
+      map->layout[current.x][current.y].s = '*';
+   }
+   std::reverse(path.begin(),path.end());
+   path.push_back(start);
+   return path;
+}
+
+void bFirst::reset()
+{
+ while(!que.empty())
+ {
+   que.pop();
+ }
+ camefrom.clear();
+}

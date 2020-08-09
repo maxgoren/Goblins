@@ -24,9 +24,11 @@ THE SOFTWARE.
 
 struct Point {
     int x;
-     int y;
-     char s;
-     bool blocks;
+    int y;
+    int t_cost;
+    int level;
+    char s;
+    bool blocks;
     color_t color;
     bool operator==(const Point& other) const {
      return x == other.x && y == other.y;
@@ -36,13 +38,13 @@ struct Point {
     }
     Point operator=(Point other) {
       x = other.x;
-     y = other.y;
+      y = other.y;
       s = other.s;
       return other;
     }
     Point operator=(Point* other) {
       x = other->x;
-     y = other->y;
+      y = other->y;
       s = other->s;
       return *other;
     }
@@ -50,6 +52,17 @@ struct Point {
     bool operator < (const Point& other) const
     {
         return std::tie(x,y) < std::tie(other.x,other.y);
+    }
+    bool operator >(const Point& other) const{
+       return std::tie(x,y) > std::tie(other.x,other.y);
+    }
+    
+    Point(int x, int y, char s, int cost) : x(x), y(y), s(s), t_cost(cost) { }
+    Point(int x, int y, int cost) : x(x), y(y), t_cost(cost) { }
+    Point(int x, int y, char s) : x(x), y(y), s(s), t_cost(1) { }
+    Point()
+    {
+
     }
 };
 
@@ -71,10 +84,10 @@ class World {
 public:
 int mapW;
 int mapH;
-Point layout[160][80];
+Point layout[90][45];
 std::vector<Rect> zone;
 void setShape(Point pos, int w, int h);
-void sampleMap();
+void sampleMap(Point Goal);
  World(int w, int h)
  {
   int x, y;
@@ -85,6 +98,9 @@ void sampleMap();
    for (y = 0; y < h; y++)
    {
      this->layout[x][y].blocks = true;
+     this->layout[x][y].t_cost = 100; //impossible
+     this->layout[x][y].color = color_from_name("white");
+     this->layout[x][y].s = '#';
    }
   }
  }
@@ -93,17 +109,21 @@ void sampleMap();
 
 void World::setShape(Point pos, int w, int h)
 {
+ int cost = 1;
  int x, y;
  for (x = pos.x; x < pos.x+w; x++)
  for (y = pos.y; y < pos.y+h; y++)
  {
  {
   this->layout[x][y].blocks = false;
+  this->layout[x][y].t_cost = cost;
+  this->layout[x][y].s = ' ';
+  this->layout[x][y].color = color_from_name("red");
   }
  }
 }
 
-void World::sampleMap()
+void World::sampleMap(Point Goal)
 {
   Point rm1;
   Point rm2;
@@ -126,5 +146,71 @@ void World::sampleMap()
   setShape(rm5, 15,2);
   setShape(rm6, 2, 15);
   setShape(rm7, 30, 8);
+  setShape(Point(65,2,0), 6, 1);
+  setShape(Point(70,3,1), 2,23);
+  setShape(Point(13,24,1),60,2);
+  setShape(Point(13,17, 1), 2, 20);
+  
+   int x,y;
+   for (x = 49; x < 71; x++)
+   {
+     for (y =5; y < 7; y++)
+     {
+       this->layout[x][y].blocks = false;
+       this->layout[x][y].t_cost = 3;
+       this->layout[x][y].s = '&';
+       this->layout[x][y].color = color_from_name("green");
+     }
+   }
+   for (x = 69; x< 73; x++)
+   {
+     for (y = 5; y < 7; y++)
+     {
+       this->layout[x][y].blocks = true;
+       this->layout[x][y].s = '#';
+       this->layout[x][y].t_cost = 100;
+       this->layout[x][y].color = 0xffFFFFFF;
+     }
+   }
+   for (x = 21; x < 35; x+=4)
+   {
+      this->layout[x][15].s = '^';
+      this->layout[x][15].color=color_from_name("cyan");
+      this->layout[x][15].t_cost = 4;
+      this->layout[x+2][14].s = 'v';
+      this->layout[x+2][14].t_cost = 4;
+      this->layout[x+2][14].color=color_from_name("cyan");
+      this->layout[x+3][14].t_cost = 1;
+    }
+    this->layout[36][15].s = '^';
+    this->layout[36][15].color=color_from_name("cyan");
+    this->layout[36][15].t_cost = 4;
 
+    this->layout[36][14].s = 'v';
+    this->layout[36][14].t_cost = 4;
+    this->layout[36][14].color=color_from_name("cyan");
+
+    this->layout[37][15].s = '^';
+    this->layout[37][15].color=color_from_name("cyan");
+    this->layout[37][15].t_cost = 4;
+
+    this->layout[37][14].s = 'v';
+    this->layout[37][14].t_cost = 4;
+    this->layout[37][14].color=color_from_name("cyan");
+
+    for (x = 40; x < 65;x++)
+    {
+      for (y = 7; y < 8; y++)
+      {
+          this->layout[x][y].color=color_from_name("yellow");
+          this->layout[x][y].s = '|';
+          this->layout[x][y].t_cost = 4;
+
+          this->layout[x+7][y+2].color=color_from_name("yellow");
+          this->layout[x+7][y+2].s = '|';
+          this->layout[x+7][y+2].t_cost = 4;
+      }
+    }
+  this->layout[Goal.x][Goal.y].s = Goal.s;
+  this->layout[Goal.x][Goal.y].t_cost = 666; //take THAT bellman ford!
 }
