@@ -21,91 +21,89 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-#include "queue.h"
-#include "list.h"
+#include <vector>
+#include <array>
+#include <queue>
+#include "list.h"  //this is in the containers folders, the reason i use this is STL's poor implementation (imo) of find();
 
-class bfMapper {
-  Point cdir[8];
-  MaxCode::Queue<Point> que;      //i implemented my own Queue and list templates
-  MaxCode::list<Point>* visited;  //this can be switched to using the STL or Boost easily.
+typedef std::vector<std::vector<Point>> field; //nicer looking code, less typing.
+
+void dijkstra_walk(field layout, ent* g);  //an example of how to use the generated map for AI movement
+
+class dijkstra_map {
+private:
+  std::array<Point,8> cdir;
+  std::queue<Point> que;
+  MaxCode::list<Point> visited;
+  int mapW;
+  int mapH;
 public:
-  World* map;
   void addNeighbors(Point current, int level);
-  void bFS(Point origin);
-  bool inBounds(Point p);
-  void moveEnt(ent* g);
-  bfMapper(World* map);
+  void make_map(Point origin); //created the Dijkstra Map
+  inline bool inBounds(Point p);
+  dijkstra_map(int mapW, int mapH);
 };
 
 
-bfMapper::bfMapper(World* map)
+dijkstra_map::dijkstra_map(int mapW, int mapH)
 {
-   this->map = map;
-   Point N({0,-1,'^'});
-   Point S({0,1,'v'});
-   Point E({1,0,'>'});
-   Point W({-1,0,'<'});
-   Point NW({-1,1});
-   Point NE({1,1});
-   Point SW({-1,-1});
-   Point SE({1,-1}); 
-   cdir[0]=E; cdir[1]=N; cdir[2]=W; cdir[3]=S;
-   cdir[4]=NW; cdir[5]=SE; cdir[6]=SW; cdir[7]=NE;
+   this->mapW = mapW;
+   this->mapH = mapH;
+   cdir[0] = {0,-1};
+   cdir[1] = {0,1};
+   cdir[2] = {1,0};
+   cdir[3] = {-1,0};
+   cdir[4] = {-1,1};
+   cdir[5] = {1,1};
+   cdir[6] = {-1,-1};
+   cdir[7] = {1,-1}; 
 }
 
 //checks that the point is within the boundaries of the map.
-bool bfMapper::inBounds(Point p)
+inline bool dijkstra_map::inBounds(Point p)
 {
-     return 0 <= p.x && p.x < map->mapW && 0 <= p.y && p.y < map->mapH;
+     return p.x > 0 && p.x < mapW && p.y > 0 && p.y < mapH;
 }
 
-//analyzes adjacency list and assigns level value;
-void bfMapper::addNeighbors(Point current, int level)
+//adds any unseen neighbors to the queue
+field dijkstra_map::addNeighbors(field layout, Point current)
 {
- bool beenchecked = false;
+ Point next;
  for (auto dir : cdir)
  {
-   Point next;
-   next = new Point({current.x + dir.x, current.y + dir.y, dir.s});
-   if (inBounds(next) && map->layout[next.x][next.y].blocks == false)
+   next = {current.x + dir.x, current.y + dir.y};
+   if (inBounds(next) && layout[next.x][next.y].blocks == false)
    {
-      if (visited->find(next) == false)
+      if (visited.find(next) == false)
       {
          que.push(next);
-         visited->push(next);
-	      map->layout[next.x][next.y].level = level;
+         visited.push(next);
+	 layout[next.x][next.y].level = current.level + 1;
       }
     }
   }
+  return layout;
 }
 
 //main search function to be called
-void bfMapper::bFS(Point origin)
+field dijkstra_map::make_map(field layout, Point start)
 {
-   Point start;
+   visited.clear();
    Point current;
-   int level = 1;
-   start = origin;
-   visited = new MaxCode::list<Point>;
+   start.level = 1;
    que.push(start);
-   visited->push(start);
-   que.push(Point({666,666}));
+   visited.push(start);
    while (!que.empty())
    {
-      current = que.pop();
-      if (current.x == 666) {
-       level++;
-       que.push(Point({666,666}));
-       if (que.front().x == 666)
-          break;
-      }
-      addNeighbors(current, level);
+      current = que.front();
+      que.pop();
+      addNeighbors(layout, current);
    }
-   que.clear();
+  return layout;
 }
 
-//for moving npc's around the map
-void bfMapper::moveEnt(ent* g)
+//This is one method of using dijkstra maps for AI movement
+void dijkstra_move(field layout, ent* goblin)
 {
   int bestValue = 1000;
   Point best;
@@ -114,17 +112,19 @@ void bfMapper::moveEnt(ent* g)
   {
     checking.x = g->pos.x + dir.x;
     checking.y = g->pos.y + dir.y;
-    checking.level = map->layout[checking.x][checking.y].level;
-    if (checking.level < bestValue && map->layout[checking.x][checking.y].blocks == false && map->layout[checking.x][checking.y].populated == false)
+    checking.level = layout[checking.x][checking.y].level;
+    if (checking.level < bestValue && layout[checking.x][checking.y].blocks == false && layout[checking.x][checking.y].populated == false)
     {
       bestValue = checking.level;
       best = checking;
     }
   }
-  map->layout[g->pos.x][g->pos.y].blocks = false;
-  map->layout[g->pos.x][g->pos.y].populated = false;
-  g->pos = best;
-  map->layout[g->pos.x][g->pos.y].blocks = true;
-  map->layout[g->pos.x][g->pos.y].populated = true;
+  layout[goblin->pos.x][goblin->pos.y].blocks = false;
+  layout[goblin->pos.x][goblin->pos.y].populated = false;
+  
+	goblin->pos = best;
+  
+  layout[goblin->pos.x][goblin->pos.y].blocks = true;
+  layout[goblin->pos.x][goblin->pos.y].populated = true;
 }
 
