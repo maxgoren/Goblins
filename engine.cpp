@@ -30,7 +30,7 @@ void gameEngine::config()
 {
     cave.setup(mapW, mapH);
     layout = cave.automaton(layout);
-    player.setup({50,20}, 666, '@');
+    player = new Actor({50,20}, 666, '@');
     ai.config(layout, mapW, mapH);
 }
 
