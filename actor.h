@@ -24,6 +24,5 @@ class Actor {
    bool can_walk(field& layout, Point p);
    void render(int adjx, int adjy);
    void move(field& layout, int dx, int dy);
-   void setup(Point start, int id, char s);
-   Actor();
+   Actor(Point start, int id, char s);
 };
