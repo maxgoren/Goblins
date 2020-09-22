@@ -16,17 +16,13 @@ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WIT
 OR OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************************************************/
 #include "actor.h"
-Actor::Actor() 
+Actor::Actor(Point start, int id, char s) 
 {
-
-}
-
-void Actor::setup(Point start, int id, char s)
-{
-    this->pos = {50,20};
+    this->pos = start;
     this->id = id;
     this->symbol = s;
 }
+
 
 bool Actor::can_walk(field& layout, Point p)
 {
