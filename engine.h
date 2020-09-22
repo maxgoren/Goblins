@@ -21,6 +21,7 @@ class gameEngine {
     int mapH; //map height
     field layout; //main map
     Actor* player;
+    Fov ln;
     Cave cave;
     dijkstra_map* dmap;
     AI ai;
