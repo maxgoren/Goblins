@@ -31,6 +31,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include "prng.h"
 #include "cave.cpp"
 #include "scroll.h"
+#include "fov.h"
 #include "actor.cpp"
 #include "dijkstra_map.cpp"
 #include "ai.cpp"
