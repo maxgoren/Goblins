@@ -87,7 +87,7 @@ void gameEngine::handle_render()
     int px, py;
     int camerax, cameray;
     //render map, with scrolling:
-    std::tie(camerax,cameray) = main_render(layout, player.getPos());
+    std::tie(camerax,cameray) = main_render(layout, player.getPos(), ln.marked);
     //get translation coords for actor/item rendering
     int ax = player.pos.x;
     int ay = player.pos.y;
