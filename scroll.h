@@ -54,7 +54,7 @@ auto player_to_cam(int playerx, int playery, int camerax, int cameray) -> std::t
 	return std::make_tuple(playerx, playery);
 } 
 
-auto main_render(field& layout, Point player_pos) -> std::tuple<int, int> 
+auto main_render(field& layout, Point player_pos, std::vector<Point> fov) -> std::tuple<int, int> 
 {
     const int map_width = 300;
     const int map_height = 300;
@@ -74,7 +74,7 @@ auto main_render(field& layout, Point player_pos) -> std::tuple<int, int>
         {
             mapx = camerax + x;
             mapy = cameray + y;
-            terminal_color(layout[mapx][mapy].color);
+            terminal_color(layout[mapx][mapy].color * .55);
             terminal_printf(x,y,"%c", layout[mapx][mapy].symbol);
          /*  
            If you want to see the dijkstra map visualized, uncomment this section
@@ -84,6 +84,14 @@ auto main_render(field& layout, Point player_pos) -> std::tuple<int, int>
             }*/
         }
     }
-    
+    int mx, my, cx, cy;
+    for (auto p : fov)
+    {
+        std::tie(cx,cy) = player_to_cam(p.x,p.y,camerax,cameray);
+        mx = p.x - camerax;
+        my = p.y - cameray;
+        terminal_color(layout[p.x][p.y].color);
+        terminal_printf(cx,cy,"%c", layout[p.x][p.y].symbol);
+    }
     return std::make_tuple(camerax,cameray);
 }
