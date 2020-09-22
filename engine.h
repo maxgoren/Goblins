@@ -20,7 +20,7 @@ class gameEngine {
     int mapW; //map width;
     int mapH; //map height
     field layout; //main map
-    Actor player;
+    Actor* player;
     Cave cave;
     dijkstra_map* dmap;
     AI ai;
