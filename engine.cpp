@@ -24,6 +24,8 @@ gameEngine::gameEngine(int mw, int mh)
     this->mapH = mh;
     this->layout = new_field(mw, mh);
     dmap = new dijkstra_map(mw, mh);
+    ln.mapH = mh;
+    ln.mapW = mw;
 }
 
 void gameEngine::config()
@@ -76,7 +78,8 @@ void gameEngine::handle_input()
                                 exit(0);
                                 break;
             default: break;
-        }   
+        }
+        ln.plot_fov(layout, player->pos, 10);
 }
 
 void gameEngine::handle_render()
